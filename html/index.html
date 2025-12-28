@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS CLI Command Cheat Sheet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #232F3E 0%, #1a2332 100%);
+            color: #ffffff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid rgba(255, 153, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            color: #FF9900;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #a0a0a0;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .service-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 153, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            border-color: #FF9900;
+            box-shadow: 0 10px 30px rgba(255, 153, 0, 0.2);
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF9900, #FF6600);
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .service-icon {
+            font-size: 2em;
+            margin-right: 15px;
+            background: linear-gradient(135deg, #FF9900, #FF6600);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .service-title {
+            font-size: 1.5em;
+            color: #FF9900;
+            font-weight: 600;
+        }
+
+        .command-block {
+            margin-bottom: 15px;
+        }
+
+        .command-description {
+            color: #a0a0a0;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .command-description::before {
+            content: '▸';
+            color: #FF9900;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .command-code {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid #FF9900;
+            padding: 12px 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #00FF00;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .tips-section {
+            background: linear-gradient(145deg, rgba(255, 153, 0, 0.1), rgba(255, 102, 0, 0.05));
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+            border: 2px solid rgba(255, 153, 0, 0.3);
+        }
+
+        .tips-header {
+            font-size: 2em;
+            color: #FF9900;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .tips-header::before {
+            content: '💡';
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .tip-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 3px solid #FF9900;
+        }
+
+        .tip-title {
+            color: #FF9900;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255, 153, 0, 0.3);
+            color: #a0a0a0;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 153, 0, 0.2);
+            color: #FF9900;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            border: 1px solid rgba(255, 153, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #FF9900;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF6600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ AWS CLI Command Cheat Sheet</h1>
+            <p>Your comprehensive guide to AWS Command Line Interface</p>
+        </div>
+
+        <div class="service-grid">
+            <!-- Configuration -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">⚙️</div>
+                    <div class="service-title">Configuration</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Check AWS CLI version</div>
+                    <div class="command-code">aws --version</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Configure credentials</div>
+                    <div class="command-code">aws configure</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List configuration</div>
+                    <div class="command-code">aws configure list</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Verify identity</div>
+                    <div class="command-code">aws sts get-caller-identity</div>
+                </div>
+            </div>
+
+            <!-- IAM -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">👤</div>
+                    <div class="service-title">IAM</div>
+                    <span class="badge">Identity</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List all users</div>
+                    <div class="command-code">aws iam list-users</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List policies</div>
+                    <div class="command-code">aws iam list-policies</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List groups</div>
+                    <div class="command-code">aws iam list-groups</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create user</div>
+                    <div class="command-code">aws iam create-user --user-name newuser</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Attach policy to user</div>
+                    <div class="command-code">aws iam attach-user-policy --user-name user \
+                        --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess</div>
+                </div>
+            </div>
+
+            <!-- S3 -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">🪣</div>
+                    <div class="service-title">S3</div>
+                    <span class="badge">Storage</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List all buckets</div>
+                    <div class="command-code">aws s3 ls</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create bucket</div>
+                    <div class="command-code">aws s3 mb s3://my-bucket-name</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Copy file to S3</div>
+                    <div class="command-code">aws s3 cp file.txt s3://my-bucket/</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Copy from S3</div>
+                    <div class="command-code">aws s3 cp s3://my-bucket/file.txt .</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Sync directory</div>
+                    <div class="command-code">aws s3 sync ./folder s3://my-bucket/</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Delete bucket</div>
+                    <div class="command-code">aws s3 rb s3://my-bucket --force</div>
+                </div>
+            </div>
+
+            <!-- EC2 -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">💻</div>
+                    <div class="service-title">EC2</div>
+                    <span class="badge">Compute</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List instances</div>
+                    <div class="command-code">aws ec2 describe-instances</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Start instance</div>
+                    <div class="command-code">aws ec2 start-instances --instance-ids i-xxxx</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Stop instance</div>
+                    <div class="command-code">aws ec2 stop-instances --instance-ids i-xxxx</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create key pair</div>
+                    <div class="command-code">aws ec2 create-key-pair --key-name mykey > mykey.pem</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Launch instance</div>
+                    <div class="command-code">aws ec2 run-instances --image-id ami-xxxx \
+                        --instance-type t2.micro --key-name mykey</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List security groups</div>
+                    <div class="command-code">aws ec2 describe-security-groups</div>
+                </div>
+            </div>
+
+            <!-- VPC -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">🌐</div>
+                    <div class="service-title">VPC</div>
+                    <span class="badge">Network</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List VPCs</div>
+                    <div class="command-code">aws ec2 describe-vpcs</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create VPC</div>
+                    <div class="command-code">aws ec2 create-vpc --cidr-block 10.0.0.0/16</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List subnets</div>
+                    <div class="command-code">aws ec2 describe-subnets</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create subnet</div>
+                    <div class="command-code">aws ec2 create-subnet --vpc-id vpc-xxxx \
+                        --cidr-block 10.0.1.0/24</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create internet gateway</div>
+                    <div class="command-code">aws ec2 create-internet-gateway</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List route tables</div>
+                    <div class="command-code">aws ec2 describe-route-tables</div>
+                </div>
+            </div>
+
+            <!-- Lambda -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">λ</div>
+                    <div class="service-title">Lambda</div>
+                    <span class="badge">Serverless</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List functions</div>
+                    <div class="command-code">aws lambda list-functions</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Invoke function</div>
+                    <div class="command-code">aws lambda invoke --function-name myfunction \
+                        response.json</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Get function config</div>
+                    <div class="command-code">aws lambda get-function --function-name myfunction</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Update function code</div>
+                    <div class="command-code">aws lambda update-function-code \
+                        --function-name myfunction --zip-file fileb://code.zip</div>
+                </div>
+            </div>
+
+            <!-- CloudWatch -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">📊</div>
+                    <div class="service-title">CloudWatch</div>
+                    <span class="badge">Monitoring</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List metrics</div>
+                    <div class="command-code">aws cloudwatch list-metrics</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Get metric statistics</div>
+                    <div class="command-code">aws cloudwatch get-metric-statistics \
+                        --metric-name CPUUtilization \
+                        --namespace AWS/EC2 --statistics Average</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create alarm</div>
+                    <div class="command-code">aws cloudwatch put-metric-alarm \
+                        --alarm-name High-CPU --threshold 80</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List alarms</div>
+                    <div class="command-code">aws cloudwatch describe-alarms</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List log groups</div>
+                    <div class="command-code">aws logs describe-log-groups</div>
+                </div>
+            </div>
+
+            <!-- RDS -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">🗄️</div>
+                    <div class="service-title">RDS</div>
+                    <span class="badge">Database</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List DB instances</div>
+                    <div class="command-code">aws rds describe-db-instances</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create snapshot</div>
+                    <div class="command-code">aws rds create-db-snapshot \
+                        --db-instance-identifier mydb \
+                        --db-snapshot-identifier mydb-snap</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Start DB instance</div>
+                    <div class="command-code">aws rds start-db-instance \
+                        --db-instance-identifier mydb</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Stop DB instance</div>
+                    <div class="command-code">aws rds stop-db-instance \
+                        --db-instance-identifier mydb</div>
+                </div>
+            </div>
+
+            <!-- DynamoDB -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">⚡</div>
+                    <div class="service-title">DynamoDB</div>
+                    <span class="badge">NoSQL</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List tables</div>
+                    <div class="command-code">aws dynamodb list-tables</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Describe table</div>
+                    <div class="command-code">aws dynamodb describe-table --table-name mytable</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Get item</div>
+                    <div class="command-code">aws dynamodb get-item --table-name mytable \
+                        --key '{"id":{"S":"123"}}'</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Scan table</div>
+                    <div class="command-code">aws dynamodb scan --table-name mytable</div>
+                </div>
+            </div>
+
+            <!-- ELB -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">⚖️</div>
+                    <div class="service-title">ELB</div>
+                    <span class="badge">Load Balancer</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List load balancers</div>
+                    <div class="command-code">aws elbv2 describe-load-balancers</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List target groups</div>
+                    <div class="command-code">aws elbv2 describe-target-groups</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Describe target health</div>
+                    <div class="command-code">aws elbv2 describe-target-health \
+                        --target-group-arn arn:aws:elasticloadbalancing:...</div>
+                </div>
+            </div>
+
+            <!-- SNS -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">📢</div>
+                    <div class="service-title">SNS</div>
+                    <span class="badge">Notifications</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List topics</div>
+                    <div class="command-code">aws sns list-topics</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create topic</div>
+                    <div class="command-code">aws sns create-topic --name my-topic</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Subscribe to topic</div>
+                    <div class="command-code">aws sns subscribe --topic-arn arn:aws:sns:... \
+                        --protocol email --notification-endpoint me@example.com</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Publish message</div>
+                    <div class="command-code">aws sns publish --topic-arn arn:aws:sns:... \
+                        --message "Alert!"</div>
+                </div>
+            </div>
+
+            <!-- CloudFormation -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">📋</div>
+                    <div class="service-title">CloudFormation</div>
+                    <span class="badge">IaC</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List stacks</div>
+                    <div class="command-code">aws cloudformation list-stacks</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Deploy stack</div>
+                    <div class="command-code">aws cloudformation deploy \
+                        --template-file stack.yaml --stack-name mystack</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Describe stack</div>
+                    <div class="command-code">aws cloudformation describe-stacks \
+                        --stack-name mystack</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Delete stack</div>
+                    <div class="command-code">aws cloudformation delete-stack \
+                        --stack-name mystack</div>
+                </div>
+            </div>
+
+            <!-- Route 53 -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">🌍</div>
+                    <div class="service-title">Route 53</div>
+                    <span class="badge">DNS</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List hosted zones</div>
+                    <div class="command-code">aws route53 list-hosted-zones</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List record sets</div>
+                    <div class="command-code">aws route53 list-resource-record-sets \
+                        --hosted-zone-id Z1234567890ABC</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create hosted zone</div>
+                    <div class="command-code">aws route53 create-hosted-zone \
+                        --name example.com --caller-reference 2024-001</div>
+                </div>
+            </div>
+
+            <!-- CloudFront -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">🚀</div>
+                    <div class="service-title">CloudFront</div>
+                    <span class="badge">CDN</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List distributions</div>
+                    <div class="command-code">aws cloudfront list-distributions</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Get distribution</div>
+                    <div class="command-code">aws cloudfront get-distribution \
+                        --id E1234567890ABC</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create invalidation</div>
+                    <div class="command-code">aws cloudfront create-invalidation \
+                        --distribution-id E123 --paths "/*"</div>
+                </div>
+            </div>
+
+            <!-- KMS -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">🔐</div>
+                    <div class="service-title">KMS</div>
+                    <span class="badge">Encryption</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List keys</div>
+                    <div class="command-code">aws kms list-keys --region us-east-1</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Describe key</div>
+                    <div class="command-code">aws kms describe-key --key-id alias/mykey</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Create key</div>
+                    <div class="command-code">aws kms create-key \
+                        --description "My encryption key"</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Encrypt data</div>
+                    <div class="command-code">aws kms encrypt --key-id alias/mykey \
+                        --plaintext fileb://secret.txt</div>
+                </div>
+            </div>
+
+            <!-- Auto Scaling -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">📈</div>
+                    <div class="service-title">Auto Scaling</div>
+                    <span class="badge">Scaling</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List ASG groups</div>
+                    <div class="command-code">aws autoscaling describe-auto-scaling-groups</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List launch templates</div>
+                    <div class="command-code">aws ec2 describe-launch-templates</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Set desired capacity</div>
+                    <div class="command-code">aws autoscaling set-desired-capacity \
+                        --auto-scaling-group-name my-asg --desired-capacity 3</div>
+                </div>
+            </div>
+
+            <!-- ECS -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">🐳</div>
+                    <div class="service-title">ECS</div>
+                    <span class="badge">Containers</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List clusters</div>
+                    <div class="command-code">aws ecs list-clusters</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List services</div>
+                    <div class="command-code">aws ecs list-services --cluster my-cluster</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List tasks</div>
+                    <div class="command-code">aws ecs list-tasks --cluster my-cluster</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Update service</div>
+                    <div class="command-code">aws ecs update-service --cluster my-cluster \
+                        --service my-service --desired-count 3</div>
+                </div>
+            </div>
+
+            <!-- SSM -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">🔧</div>
+                    <div class="service-title">Systems Manager</div>
+                    <span class="badge">Management</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List parameters</div>
+                    <div class="command-code">aws ssm describe-parameters</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Get parameter</div>
+                    <div class="command-code">aws ssm get-parameter --name /app/config \
+                        --with-decryption</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Put parameter</div>
+                    <div class="command-code">aws ssm put-parameter --name /app/config \
+                        --value "value" --type SecureString</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Start session</div>
+                    <div class="command-code">aws ssm start-session --target i-xxxx</div>
+                </div>
+            </div>
+
+            <!-- WAF -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">🛡️</div>
+                    <div class="service-title">WAF</div>
+                    <span class="badge">Security</span>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List Web ACLs</div>
+                    <div class="command-code">aws wafv2 list-web-acls --scope REGIONAL \
+                        --region us-east-1</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">Get Web ACL details</div>
+                    <div class="command-code">aws wafv2 get-web-acl --name my-web-acl \
+                        --scope REGIONAL --id xxxx</div>
+                </div>
+                <div class="command-block">
+                    <div class="command-description">List IP sets</div>
+                    <div class="command-code">aws wafv2 list-ip-sets --scope REGIONAL</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="tips-section">
+            <div class="tips-header">Pro Tips & Best Practices</div>
+
+            <div class="tip-item">
+                <div class="tip-title">🎯 Output Formatting</div>
+                <div class="command-code">aws ec2 describe-instances --output table
+                    aws ec2 describe-instances --output json
+                    aws ec2 describe-instances --output yaml
+                    aws ec2 describe-instances --output text</div>
+            </div>
+
+            <div class="tip-item">
+                <div class="tip-title">🔍 Query & Filter with JMESPath</div>
+                <div class="command-code">aws ec2 describe-instances \
+                    --query 'Reservations[*].Instances[*].[InstanceId,State.Name]'
+
+                    aws ec2 describe-instances \
+                    --filters "Name=instance-state-name,Values=running" \
+                    --query 'Reservations[*].Instances[*].[InstanceId,PublicIpAddress]' \
+                    --output table</div>
+            </div>
+
+            <div class="tip-item">
+                <div class="tip-title">👥 Profile Management</div>
+                <div class="command-code">aws s3 ls --profile production
+                    aws configure --profile development
+                    aws configure set region us-west-2 --profile development</div>
+            </div>
+
+            <div class="tip-item">
+                <div class="tip-title">🧪 Dry Run (Test Without Executing)</div>
+                <div class="command-code">aws ec2 run-instances --dry-run \
+                    --image-id ami-xxxx --instance-type t2.micro</div>
+            </div>
+
+            <div class="tip-item">
+                <div class="tip-title">📦 Using Variables</div>
+                <div class="command-code">INSTANCE_ID=$(aws ec2 describe-instances \
+                    --filters "Name=tag:Name,Values=MyServer" \
+                    --query 'Reservations[0].Instances[0].InstanceId' \
+                    --output text)
+
+                    aws ec2 stop-instances --instance-ids $INSTANCE_ID</div>
+            </div>
+
+            <div class="tip-item">
+                <div class="tip-title">⚡ Pagination</div>
+                <div class="command-code">aws s3api list-objects-v2 --bucket my-bucket \
+                    --max-items 100 --starting-token token-string</div>
+            </div>
+
+            <div class="tip-item">
+                <div class="tip-title">📝 Getting Help</div>
+                <div class="command-code">aws help
+                    aws ec2 help
+                    aws s3 cp help</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>💡 <strong>Remember:</strong> Replace placeholder values (xxxx, i-xxxx, vpc-xxxx, etc.) with your actual
+                AWS resource IDs</p>
+            <p style="margin-top: 10px;">Created with ❤️ for AWS CLI users | Always follow AWS security best practices
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>
